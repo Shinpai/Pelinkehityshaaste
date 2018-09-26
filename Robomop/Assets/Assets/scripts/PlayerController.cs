@@ -4,37 +4,43 @@ using UnityEngine;
  
 public class PlayerController : MonoBehaviour
 {
-// script from https://stuartspixelgames.com/
- Rigidbody2D body;
- float horizontal;
- float vertical;
- float moveLimiter = 0.7f;
- public float runSpeed = 1  ; 
+ public Sprite ylos;
+ public Sprite alas;
+ public Sprite vasen;
+ public Sprite oikea;
+ private float v_speed = 2;
+ private float h_speed = 4;
+ SpriteRenderer s_r;
+
 
  void Start ()
  {
-    body = GetComponent<Rigidbody2D>();
+       s_r = GetComponent<SpriteRenderer>();
  }
 
 void Update()
- {
-    horizontal = Input.GetAxisRaw("Horizontal");
-    vertical = Input.GetAxisRaw("Vertical"); 
- }
-
-void FixedUpdate ()
-{ 
-      if(horizontal != 0 && vertical != 0) 
-            body.velocity = new Vector2((horizontal * runSpeed) * moveLimiter , (vertical * runSpeed) * moveLimiter); 
-      else 
-            body.velocity = new Vector2(horizontal * runSpeed, vertical * runSpeed); 
-
-      // rotation by Jokeman258 · Mar 01, 2015 at 01:21 AM, Unity Forums
-      Vector2 moveDirection = body.velocity;
-      if (moveDirection != Vector2.zero) {
-            float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+{
+      Vector3 pos = transform.position;
+ 
+      if (Input.GetKey ("w")) {
+            pos.y += v_speed * Time.deltaTime;
+            s_r.sprite = ylos;
       }
+      if (Input.GetKey ("a")) {
+            pos.x -= h_speed * Time.deltaTime;
+            s_r.sprite = vasen;
+      }
+      if (Input.GetKey ("s")) {
+            pos.y -= v_speed * Time.deltaTime;
+            s_r.sprite = alas;
+      }
+      if (Input.GetKey ("d")) {
+            pos.x += h_speed * Time.deltaTime;
+            s_r.sprite = oikea;
+      }
+
+      transform.position = pos;
+      // this.transform.rotation = Quaternion.Euler(new Vector3(10, -10, 0));
 }
 }
 
