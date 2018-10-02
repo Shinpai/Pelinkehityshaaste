@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
  
 public class PlayerController : MonoBehaviour
 {
@@ -10,6 +9,7 @@ public class PlayerController : MonoBehaviour
  private float h_speed = 4;
  SpriteRenderer s_r;
  Animator tori;
+ SceneAloitus GO_manager;
 
 void Start (){
       s_r = GetComponent<SpriteRenderer>();
@@ -48,7 +48,7 @@ private void OnCollisionEnter2D(Collision2D col) {
       if(col.gameObject.name == "keskiTaso")
             Debug.Log("osuit seinään");
       else if(col.gameObject.name == "ylaTaso")
-            SceneManager.LoadScene("Aloitus");
+            FindObjectOfType<SceneAloitus>().restart();
             Debug.Log("voitit pelin");          
 }
 }

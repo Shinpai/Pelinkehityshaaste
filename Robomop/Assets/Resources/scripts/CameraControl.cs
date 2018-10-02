@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CameraControl : MonoBehaviour {
 
-	public Skybox sb;
 	// Use this for initialization
 	void Start () {		
 		this.transform.position = new Vector3(1,-2.5f,-8);

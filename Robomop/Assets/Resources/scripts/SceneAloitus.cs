@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using UnityEngine.Tilemaps;
+using UnityEngine.SceneManagement;
 
 
 public class SceneAloitus : MonoBehaviour {
@@ -17,12 +17,26 @@ public class SceneAloitus : MonoBehaviour {
 	public Tilemap ylaTaso;
 	public GameObject pc_prefab;
 	public GameObject enemy_prefab;
+	public Camera overseer;
 
+	public AudioSource musa;
+	public AudioSource[] aanet = new AudioSource[4];
+	private int rnd_level;
 
 	// Use this for initialization
-	void Start () {
+	private void Awake() {
 		perusGrid.transform.position = new Vector3(-10, -10, 0);
-		perusGrid = GetComponent<Grid>();	
+		perusGrid = GetComponent<Grid>();
+
+		// Random ääniefekti alkuun
+		Random rnd = new Random();
+		int r = Random.Range(0, aanet.Length);
+		AudioSource valittu = aanet[r];
+		valittu.Play();
+
+		// ja musat
+		musa.Play();
+
 		generoi_map();
 	}
 	
@@ -31,12 +45,17 @@ public class SceneAloitus : MonoBehaviour {
 		
 	}
 
+	static void tee_jotain(){
+
+	}
+	public void restart(){
+		SceneManager.LoadScene("Aloitus");
+	}
 	// Generoi random numeron jonka perusteella valitsee kartan osat ja generoi Tilemapin sceneen
 	private void generoi_map(){
-		// TODO: randomisointi
-		int rnd_level = Random.Range(0, 2);
+		// TODO: randomisointi		
 		Debug.Log("Generoitu kenttä : " + rnd_level);
-
+		rnd_level = Random.Range(0, 2);
 		int[,] map_1 = new int[,] 
 		{
 			{2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,},
@@ -76,22 +95,22 @@ public class SceneAloitus : MonoBehaviour {
 		int[,] map_3 = new int[,] 
 		{
 			{2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,},
-    		{2,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,2,},
-			{2,1,0,0,0,0,0,4,0,0,0,0,0,0,0,0,1,2,},
+    		{2,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,2,},
+			{2,1,0,0,0,0,0,0,4,0,0,0,0,0,0,0,1,2,},
 			{2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,},
+			{2,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,2,},
+			{2,1,0,4,0,0,0,1,0,0,1,0,0,4,0,0,1,2,},
+			{2,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,2,},
+			{2,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,2,},
 			{2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,},
+			{2,1,0,0,0,0,0,0,3,0,0,0,0,0,0,0,1,2,},
 			{2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,},
-			{2,1,0,4,0,0,0,0,0,0,0,0,0,0,3,0,1,2,},
-			{2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,},
-			{2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,},
-			{2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,},
-			{2,1,0,0,0,0,0,4,0,0,0,0,0,0,0,0,1,2,},
-			{2,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,2,},
+			{2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,},
 			{2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,},
 			
 		};
 
-		List<int[,]> maps = new List<int[,]>{map_1, map_2, map_3};
+		List<int[,]> maps = new List<int[,]>{map_3, map_1, map_2, map_3};
 		int[,] map = maps[rnd_level];
 
 		// käy läpi taulukko ja aseta elementit sen mukaan
