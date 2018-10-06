@@ -3,56 +3,58 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.SceneManagement;
-
+using UnityEngine.UI;
 
 public class SceneAloitus : MonoBehaviour {
 
+	public static SceneAloitus _singleton;
 	public Grid perusGrid;
-	public Tile SeinaCollider;
-	public Tile Pohjalaatta;
-	public Tile VoittoCollider;
+	public Tile SeinaCollider, Pohjalaatta, VoittoCollider;
 
-	public Tilemap pohjaTaso;
-	public Tilemap keskiTaso;
-	public Tilemap ylaTaso;
-	public GameObject pc_prefab;
-	public GameObject enemy_prefab;
+	public Tilemap pohjaTaso, keskiTaso, ylaTaso;
+	public GameObject pc_prefab, enemy_prefab;
 	public Camera overseer;
 
 	public AudioSource musa;
 	public AudioSource[] aanet = new AudioSource[4];
 	private int rnd_level;
+	public int xp = 0;
+	public Text text_xp;
 
 	// Use this for initialization
 	private void Awake() {
+
+		if (_singleton == null)
+			_singleton = this;
+		else if (_singleton != this)
+			Destroy(_singleton);
+
 		perusGrid.transform.position = new Vector3(-10, -10, 0);
 		perusGrid = GetComponent<Grid>();
-
-		// Random ääniefekti alkuun
-		Random rnd = new Random();
-		int r = Random.Range(0, aanet.Length);
-		AudioSource valittu = aanet[r];
-		valittu.Play();
-
-		// ja musat
-		musa.Play();
+		text_xp = GetComponent<Text>();
 
 		generoi_map();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if (_singleton.text_xp != null)
+			_singleton.text_xp.text = "Player XP: " + _singleton.xp.ToString();
 	}
 
-	static void tee_jotain(){
-
-	}
 	public void restart(){
 		SceneManager.LoadScene("Aloitus");
 	}
 	// Generoi random numeron jonka perusteella valitsee kartan osat ja generoi Tilemapin sceneen
 	private void generoi_map(){
+		// Random ääniefekti alkuun
+		Random rnd = new Random();
+		int r = Random.Range(0, aanet.Length);
+		AudioSource valittu = aanet[r];
+		valittu.Play();
+		// ja musat
+		musa.Play();
+
 		// TODO: randomisointi		
 		Debug.Log("Generoitu kenttä : " + rnd_level);
 		rnd_level = Random.Range(0, 2);
