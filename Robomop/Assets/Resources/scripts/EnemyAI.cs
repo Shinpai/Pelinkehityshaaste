@@ -5,16 +5,22 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour {
 
 	public GameObject player;
-	public SceneAloitus _singleton;
+	public SceneAloitus game_manager;
 	// Use this for initialization
 	void Start () {
-		_singleton = SceneAloitus._singleton;
+		game_manager = SceneAloitus._singleton;
 	}
 	
-	private void OnCollisionEnter2D(Collision2D coll) {
-		if (coll.gameObject.name == "Player(Clone)"){
+	private void OnTriggerEnter2D(Collider2D coll) {
+		var name = coll.gameObject.name;
+
+		if (name == "Player(Clone)"){
 			Destroy(player);
-			_singleton.restart();
+			game_manager.restart(true);
+		}
+		if (name == "bulletPrefab(Clone)"){
+			Destroy(gameObject);
+			Destroy(coll.gameObject);
 		}
 	}
 	// Update is called once per frame

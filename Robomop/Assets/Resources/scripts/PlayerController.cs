@@ -13,22 +13,23 @@ public class PlayerController : MonoBehaviour
  private string last_pressed;
  public GameObject bulletPrefab;
  public Transform bulletSpawn;
- public SceneAloitus _singleton;
+ public SceneAloitus game_manager;
+ private int xp_counter;
 
 void Awake (){
       s_r = GetComponent<SpriteRenderer>();
       tori = GetComponent<Animator>();
       bulletSpawn = transform.Find("bulletSpawn");
       bulletPrefab = Resources.Load("Prefabs/bulletPrefab") as GameObject;
-      _singleton = GetComponent<SceneAloitus>();
+      game_manager = SceneAloitus._singleton;
 }
 void Update()
 {
       if (gameObject == null)
-            _singleton.restart();
+            game_manager.restart(true);
 
       Vector3 pos = transform.position;
- 
+
       if (Input.GetKey ("w")) {
             pos.y += v_speed * Time.deltaTime;
             tori.SetTrigger("walk_w");
@@ -87,16 +88,15 @@ private void shoot_projectile(){
                   break;
             }
             nextFireTime = Time.time + 1f;
-            Destroy(bullet, 2f);
+            if (bullet != null)
+                  Destroy(bullet, 1.5f);
     }
 }
 
 private void OnCollisionEnter2D(Collision2D col) {
-      if (col.gameObject.name == "bulletPrefab")
-            return;
-      else if(col.gameObject.name == "ylaTaso")
-            _singleton.xp += 100;
-            FindObjectOfType<SceneAloitus>().restart();
+      if(col.gameObject.name == "ylaTaso")
+            game_manager.xp += 100;
+            game_manager.restart(false);
 }
 }
 

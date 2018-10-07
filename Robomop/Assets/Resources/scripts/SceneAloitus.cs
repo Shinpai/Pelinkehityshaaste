@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class SceneAloitus : MonoBehaviour {
 
-	public static SceneAloitus _singleton;
+	public static SceneAloitus _singleton {get; private set;}
 	public Grid perusGrid;
 	public Tile SeinaCollider, Pohjalaatta, VoittoCollider;
 
@@ -22,16 +22,17 @@ public class SceneAloitus : MonoBehaviour {
 	public Text text_xp;
 
 	// Use this for initialization
-	private void Awake() {
+	private void Start() {
 
-		if (_singleton == null)
+		if (_singleton == null){
 			_singleton = this;
-		else if (_singleton != this)
-			Destroy(_singleton);
+			DontDestroyOnLoad(gameObject);
+		}
+		else
+			Destroy(gameObject);
 
-		perusGrid.transform.position = new Vector3(-10, -10, 0);
-		perusGrid = GetComponent<Grid>();
-		text_xp = GetComponent<Text>();
+		// musat
+		musa.Play();
 
 		generoi_map();
 	}
@@ -41,23 +42,32 @@ public class SceneAloitus : MonoBehaviour {
 		if (_singleton.text_xp != null)
 			_singleton.text_xp.text = "Player XP: " + _singleton.xp.ToString();
 	}
-
-	public void restart(){
+	
+	public void restart(bool death){
+		if (death)
+			xp = 0;
 		SceneManager.LoadScene("Aloitus");
 	}
+
+	private void alusta(){
+		_singleton.perusGrid = FindObjectOfType<Grid>();
+		_singleton.perusGrid.transform.position = new Vector3(-10, -10, 0);
+
+		_singleton.overseer = FindObjectOfType<Camera>();
+		_singleton.text_xp = FindObjectOfType<Text>();
+	}
+
 	// Generoi random numeron jonka perusteella valitsee kartan osat ja generoi Tilemapin sceneen
-	private void generoi_map(){
+	private void generoi_map(){				
 		// Random ääniefekti alkuun
 		Random rnd = new Random();
 		int r = Random.Range(0, aanet.Length);
 		AudioSource valittu = aanet[r];
 		valittu.Play();
-		// ja musat
-		musa.Play();
 
-		// TODO: randomisointi		
-		Debug.Log("Generoitu kenttä : " + rnd_level);
-		rnd_level = Random.Range(0, 2);
+		alusta();
+
+		// TODO: randomisointi
 		int[,] map_1 = new int[,] 
 		{
 			{2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,},
@@ -113,6 +123,7 @@ public class SceneAloitus : MonoBehaviour {
 		};
 
 		List<int[,]> maps = new List<int[,]>{map_3, map_1, map_2, map_3};
+		rnd_level = Random.Range(0, maps.Count);
 		int[,] map = maps[rnd_level];
 
 		// käy läpi taulukko ja aseta elementit sen mukaan
@@ -134,14 +145,12 @@ public class SceneAloitus : MonoBehaviour {
 					Instantiate(pc_prefab, position: tile_pos, rotation: new Quaternion(0,0,0,0));
 					if (pc_prefab == null)
 						continue;
-					Debug.Log("pelaaja lisätty");
 				}					
 				else if (cell == 4){
 					// luodaan viholliset kenttään ja asetetaan ne oikealle paikalle
 					pohjaTaso.SetTile(new Vector3Int(j, i, 0), Pohjalaatta);
 					var tile_pos = pohjaTaso.GetCellCenterWorld(new Vector3Int(j, i, 0));
 					Instantiate(enemy_prefab, position: tile_pos, rotation: new Quaternion(0,0,0,0));
-					Debug.Log("robotti lisätty");
 				}
 				else 
 					ylaTaso.SetTile(new Vector3Int(j, i, 0), VoittoCollider);
