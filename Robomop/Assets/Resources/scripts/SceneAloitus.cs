@@ -17,12 +17,13 @@ public class SceneAloitus : MonoBehaviour {
 
 	public AudioSource musa;
 	public AudioSource[] aanet = new AudioSource[4];
+	public AudioSource[] sounds = new AudioSource[3];
 	private int rnd_level;
-	public int xp = 0;
+	public int xp;
 	public Text text_xp;
 
 	// Use this for initialization
-	private void Start() {
+	private void Awake() {
 
 		if (_singleton == null){
 			_singleton = this;
@@ -39,22 +40,22 @@ public class SceneAloitus : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (_singleton.text_xp != null)
-			_singleton.text_xp.text = "Player XP: " + _singleton.xp.ToString();
+		
+	}
+	private void OnGUI() {
+		GUI.Label(new Rect(10,10, 100, 30),"Player XP: " + _singleton.xp.ToString());
 	}
 	
 	public void restart(bool death){
 		if (death)
-			xp = 0;
+			_singleton.xp = 0;
 		SceneManager.LoadScene("Aloitus");
 	}
 
 	private void alusta(){
 		_singleton.perusGrid = FindObjectOfType<Grid>();
 		_singleton.perusGrid.transform.position = new Vector3(-10, -10, 0);
-
 		_singleton.overseer = FindObjectOfType<Camera>();
-		_singleton.text_xp = FindObjectOfType<Text>();
 	}
 
 	// Generoi random numeron jonka perusteella valitsee kartan osat ja generoi Tilemapin sceneen

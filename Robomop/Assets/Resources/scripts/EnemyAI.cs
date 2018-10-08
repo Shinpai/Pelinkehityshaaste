@@ -15,10 +15,14 @@ public class EnemyAI : MonoBehaviour {
 		var name = coll.gameObject.name;
 
 		if (name == "Player(Clone)"){
+			Debug.Log("#1");
+			game_manager.sounds[1].Play();
+			new WaitForSecondsRealtime(2);
 			Destroy(player);
 			game_manager.restart(true);
 		}
 		if (name == "bulletPrefab(Clone)"){
+			Debug.Log("#2");
 			Destroy(gameObject);
 			Destroy(coll.gameObject);
 		}
@@ -34,7 +38,7 @@ public class EnemyAI : MonoBehaviour {
 			ero = ero.normalized;
 
 			if (Vector3.Distance(player_pos, transform.position) <= 7.0f){
-				transform.position -= (ero * .5f * Time.deltaTime);
+				transform.position -= (ero * .7f * Time.deltaTime);
 			}
 		}
 	}

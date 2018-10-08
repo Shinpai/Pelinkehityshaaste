@@ -67,7 +67,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   serializedVersion: 2
   m_Size: {x: 0.64, y: 0.64}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.05
 --- !u!95 &95336798060090454
 Animator:
   serializedVersion: 3
@@ -97,6 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
+  game_manager: {fileID: 0}
 --- !u!212 &212585898025768742
 SpriteRenderer:
   m_ObjectHideFlags: 1

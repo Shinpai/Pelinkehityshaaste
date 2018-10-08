@@ -5,8 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
  public Sprite ylos, alas, vasen, oikea;
- private float v_speed = 2;
- private float h_speed = 4;
+ private float v_speed;
+ private float h_speed;
  SpriteRenderer s_r;
  Animator tori;
  SceneAloitus GO_manager;
@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
  public GameObject bulletPrefab;
  public Transform bulletSpawn;
  public SceneAloitus game_manager;
- private int xp_counter;
+ private int xp_counter, death_counter;
 
 void Awake (){
       s_r = GetComponent<SpriteRenderer>();
@@ -22,11 +22,19 @@ void Awake (){
       bulletSpawn = transform.Find("bulletSpawn");
       bulletPrefab = Resources.Load("Prefabs/bulletPrefab") as GameObject;
       game_manager = SceneAloitus._singleton;
+
+      rof = 1.5f;
+      death_counter = 0;
+      v_speed = 2;
+      h_speed = 4;
+      skaala = new Vector3(1,1,1);  
 }
 void Update()
 {
-      if (gameObject == null)
+      if (gameObject == null){
+            Debug.Log("#5");
             game_manager.restart(true);
+      }
 
       Vector3 pos = transform.position;
 
@@ -61,11 +69,26 @@ void Update()
       transform.position = pos;
       transform.rotation = Quaternion.Euler(0,0,0);
 }
+private float rof;
+
+private void OnGUI() {
+      if (game_manager.xp >= 100){
+            rof = .5f;
+            GUI.Label(new Rect(10, 30, 150, 50),"@100: ROF upgrade");
+      }
+       
+      if (game_manager.xp >= 300){
+            skaala = new Vector3(2,2,2);
+            GUI.Label(new Rect(10, 50, 120, 30),"@300: Suuremmat luodit");
+      }
+}
 private float nextFireTime;   
+private Vector3 skaala;
 private void shoot_projectile(){
       int bspeed = 50;
       if (Time.time > nextFireTime){
             GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity) as GameObject;
+            bullet.transform.localScale = skaala;
             switch (last_pressed)
             {
                 case "w":
@@ -87,14 +110,16 @@ private void shoot_projectile(){
                 default:
                   break;
             }
-            nextFireTime = Time.time + 1f;
+            game_manager.sounds[2].Play();
+            nextFireTime = Time.time + rof;
             if (bullet != null)
-                  Destroy(bullet, 1.5f);
+                  Destroy(bullet, 1f);
     }
 }
 
 private void OnCollisionEnter2D(Collision2D col) {
       if(col.gameObject.name == "ylaTaso")
+            Debug.Log("#6");
             game_manager.xp += 100;
             game_manager.restart(false);
 }

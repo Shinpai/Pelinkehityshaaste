@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: barrelLarge
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 21300000, guid: 53fc9ae645d913c458f2099ca0c1dd84, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6838235, g: 1, b: 0.7775862, a: 1}
   m_Transform:
     e00: 1
     e01: 0
