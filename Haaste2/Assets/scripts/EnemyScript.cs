@@ -7,7 +7,7 @@ public class EnemyScript : MonoBehaviour {
     public GameObject spawner;
 
     private string en_name;
-    private int HP = 10;
+    public int HP { get; set; }
     private string tavoite = "kivi";
     private int tavoitemaara = 2;
 
@@ -15,6 +15,7 @@ public class EnemyScript : MonoBehaviour {
     {
         spawner = GameObject.Find("EnemySpawner");
         en_name = gameObject.name;
+        HP = 10;
     }
 
     private void OnTriggerEnter(Collider other)

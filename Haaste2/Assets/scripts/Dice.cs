@@ -1,16 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Dice : MonoBehaviour
 {
-    public Sprite noppakuva;
     public float K, S, P;
-    public string tulos;
+    public string tulos = "0";
+    public GameObject pool, box;
 
     private void Awake()
     {
-        GetComponent<SpriteRenderer>().sprite = noppakuva;
+        box = GameObject.Find("DiceGrid");
+        pool = GameObject.Find("DicePool");
+    }
+
+    private void Update()
+    {
+        transform.GetChild(0).GetComponent<Text>().text = tulos;
     }
 
     public void setKSP(int ki, int sa, int pa)
@@ -18,7 +25,7 @@ public class Dice : MonoBehaviour
         K = ki; S = sa; P = pa;
     }
 
-    public void RollMe()
+    public string RollMe()
     {
         var factor = 1 / (K + S + P);
         float _K = K * factor;
@@ -52,6 +59,22 @@ public class Dice : MonoBehaviour
         else if (valittu == _S)
         {
             tulos = "Sakset";
+        }
+
+        return tulos;
+    }
+        
+    public void AddOrRemoveFromPool()
+    {
+        if (transform.parent.gameObject == box)
+        {
+            Debug.Log("from box to pool");
+            transform.SetParent(pool.transform);
+        }
+        else
+        {
+            Debug.Log("from pool to box");
+            transform.SetParent(box.transform);
         }
     }
 }
