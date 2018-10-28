@@ -27,6 +27,19 @@ public class Dice : MonoBehaviour
 
     public string RollMe()
     {
+        var heitto = Random.Range(1, 7);
+        Debug.Log(heitto + " heitetty");
+        if (heitto <= 2)
+            tulos = "Kivi";
+        else if (2 <= heitto && heitto <= 4)
+            tulos = "Sakset";
+        else if (4 <= heitto && heitto <= 6)
+            tulos = "Paperi";
+        return tulos;
+    }
+
+    public string RollMeFactored()
+    {
         var factor = 1 / (K + S + P);
         float _K = K * factor;
         float _S = S * factor;
@@ -68,13 +81,17 @@ public class Dice : MonoBehaviour
     {
         if (transform.parent.gameObject == box)
         {
+            if (pool.transform.childCount > 5)
+                return;
             Debug.Log("from box to pool");
-            transform.SetParent(pool.transform);
+            GameObject newGO = Instantiate(gameObject);
+            newGO.transform.SetParent(pool.transform);
+            newGO.transform.localScale = new Vector3(1, 1, 1);
         }
         else
         {
             Debug.Log("from pool to box");
-            transform.SetParent(box.transform);
+            Destroy(gameObject);
         }
     }
 }

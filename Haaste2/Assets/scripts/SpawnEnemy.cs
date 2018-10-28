@@ -17,6 +17,7 @@ public class SpawnEnemy : MonoBehaviour {
         BoxOfDice = GameObject.Find("DiceBox");
         BagOfDice = GameObject.Find("DiceBag");
         poGO = GameObject.Find("Character");
+        CombatUI = GameObject.Find("CombatUICanvas");
     }
 
     public void AddDice(Dice die)
@@ -28,7 +29,7 @@ public class SpawnEnemy : MonoBehaviour {
 
     private void Update()
     {   
-        if (enemyGO)
+        if (enemyGO && CombatUI.transform.position.z == -10)
         {
             enemyGO.transform.Translate(-moveSpeed * Time.deltaTime, 0, 0);
         }
@@ -37,8 +38,11 @@ public class SpawnEnemy : MonoBehaviour {
     internal void StartCombat(string en_name, int HP, string tavoite, int tavoitemaara)
     {
         Debug.Log(string.Format("#Combat start with : {0}, {1}, {2}, {3}", en_name, HP, tavoite, tavoitemaara));
-        Time.timeScale = 0;
-        CombatUI.SetActive(true);
+        CombatUI.transform.Translate(0, 0, 10);
+        //Time.timeScale = 0;
+        //CombatUI.SetActive(true);
+        
+
 
         // do combat
         StartCoroutine(DoCombatWith(en_name));
@@ -53,8 +57,9 @@ public class SpawnEnemy : MonoBehaviour {
             // if win
             Debug.Log("#Combat end");
             Destroy(enemy);
-            Time.timeScale = 1.0f;
-            CombatUI.SetActive(false);
+            CombatUI.transform.Translate(0, 0, -10);
+            //Time.timeScale = 1.0f;
+            //CombatUI.SetActive(false);
         }
         else if (CheckPlayerAndOpponent(poGO, enemy) == 0)
         {
