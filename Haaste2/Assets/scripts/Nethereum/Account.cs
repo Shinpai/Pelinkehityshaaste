@@ -17,7 +17,7 @@ public class Account : MonoBehaviour
     // Here we define accountAddress (the public key; We are going to extract it later using the private key)
     private string accountAddress;
     // This is the secret key of the address, you should put yours.
-    private string accountPrivateKey = "0x0C2F69A24F5D49D8171E0CD419F7CB5462207DE428A2EFD74A8773B1A76FE32B9";
+    private string accountPrivateKey = "C2F69A24F5D49D8171E0CD419F7CB5462207DE428A2EFD74A8773B1A76FE32B9";
     // This is the testnet we are going to use for our contract, in this case kovan
     private string _url = "http://ethereum.it.jyu.fi:8545";
     // contract address
@@ -55,16 +55,35 @@ public class Account : MonoBehaviour
     {
         var req = new EthCallUnityRequest(_url);
         var func = contract.GetFunction("getAssets");
-        yield return req.SendRequest(func.CreateCallInput(), BlockParameter.CreateLatest());
+        var callinput = func.CreateCallInput();
+        var blockparam = BlockParameter.CreateLatest();
+
+        yield return req.SendRequest(callinput, blockparam);
         if (req.Exception == null)
-        {
+        {            
             var result = req.Result.ToString();
             haettu (result);
         }
         else
         {
-            Debug.Log("Exception caught : " + req.Exception.ToString());
+            throw new InvalidOperationException("Get assets request failed");
         }
+    }
+    
+    public IEnumerator getAccountBalance(string address, System.Action<decimal> callback)
+    {
+        var getBalanceRequest = new EthGetBalanceUnityRequest(_url);
+        yield return getBalanceRequest.SendRequest(address, BlockParameter.CreateLatest());
+        if (getBalanceRequest.Exception == null)
+        {
+            var balance = getBalanceRequest.Result.Value;
+            callback(Nethereum.Util.UnitConversion.Convert.FromWei(balance, 18));
+        }
+        else
+        {
+            throw new InvalidOperationException("Get balance request failed");
+        }
+
     }
 
     public void importAccountFromPrivateKey()
@@ -82,21 +101,4 @@ public class Account : MonoBehaviour
             Debug.Log("Error importing account from PrivateKey: " + e);
         }
     }
-
-    public IEnumerator getAccountBalance(string address, System.Action<decimal> callback)
-    {
-        var getBalanceRequest = new EthGetBalanceUnityRequest(_url);
-        yield return getBalanceRequest.SendRequest(address, BlockParameter.CreateLatest());
-        if (getBalanceRequest.Exception == null)
-        {
-            var balance = getBalanceRequest.Result.Value;
-            callback(Nethereum.Util.UnitConversion.Convert.FromWei(balance, 18));
-        }
-        else
-        {
-            throw new System.InvalidOperationException("Get balance request failed");
-        }
-
-    }
-
 }
