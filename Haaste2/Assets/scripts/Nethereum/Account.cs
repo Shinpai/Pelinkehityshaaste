@@ -42,12 +42,13 @@ public class Account : MonoBehaviour
         StartCoroutine(getWallet());
 
         // get assets from wallet
-        Debug.Log("Getting assets...");
-        StartCoroutine(getAssets((haettu) =>{
-            Debug.Log("Assetit : " + haettu);
-        }));
+        //Debug.Log("Getting assets...");
+        //StartCoroutine(getAssets((haettu) =>{
+        //    Debug.Log("Assetit : " + haettu);
+        //}));
     }
 
+    private bool walletFound = false;
     private IEnumerator getWallet()
     {
         // read json and get abi and bytecode
@@ -56,35 +57,53 @@ public class Account : MonoBehaviour
         string ABIstring = parsed.GetValue("abi").ToString();
         string BCstring = parsed.GetValue("bytecode").ToString();
 
+        // new request
+        var req = new EthCallUnityRequest(_url);
         // new contract from contract address
-        var contract = new Contract(null, ABIstring, contractAddress);         
+        var contract = new Contract(null, ABIstring, accountAddress);         
         Function func = contract.GetFunction("getWallet");
-        Debug.Log("Wallet: " + func.GetData());
-        yield return func.GetData();
+
+        // parameters for sendrequest
+        var callinput = func.CreateCallInput(accountAddress);
+        var blockparam = BlockParameter.CreateLatest();
+
+        // returns 0x -> not enough gas?
+
+        yield return req.SendRequest(callinput, blockparam);
+        if (req.Exception == null)
+        {
+            Debug.Log("Wallet found: " + req.Result);
+            walletFound = true;
+        }
+        else
+        {
+            throw new InvalidOperationException("Get wallet request failed");
+        }
     }
 
     public IEnumerator getAssets(Action<string> haettu)
     {
+        yield return new WaitForSeconds(5);
         // read json and get abi and bytecode
         string jsonString2 = System.IO.File.ReadAllText("Assets/JSON/GameWallet.json");
         var parsed2 = Newtonsoft.Json.Linq.JObject.Parse(jsonString2);
         string ABIstring2 = parsed2.GetValue("abi").ToString();
         string BCstring2 = parsed2.GetValue("bytecode").ToString();
 
-        // new contract from contract address
-        var contract = new Contract(null, ABIstring2, contractAddress);
+        // new request
+        var req = new EthCallUnityRequest(_url);
+        // new contract and wanted function from contract address
+        var contract = new Contract(null, ABIstring2, accountAddress);
         var func = contract.GetFunction("getAssets");
 
-
-        var req = new EthCallUnityRequest(_url);
-
+        // parameters for sendrequest
         var callinput = func.CreateCallInput();
         var blockparam = BlockParameter.CreateLatest();
 
         yield return req.SendRequest(callinput, blockparam);
         if (req.Exception == null)
         {
-            var result = req.Result.ToString();
+            var result = req.Result;
             haettu(result);
         }
         else
