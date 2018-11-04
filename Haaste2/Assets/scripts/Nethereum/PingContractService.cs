@@ -51,8 +51,7 @@ public class PingContractService
         HexBigInteger gas = null,
         HexBigInteger gasPrice = null,
         HexBigInteger valueAmount = null)
-    {
-
+    {   
         var function = GetPingFunction();
         return function.CreateTransactionInput(addressFrom, gas, gasPrice, valueAmount, pingValue);
     }

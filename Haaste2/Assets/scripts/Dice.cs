@@ -8,6 +8,8 @@ public class Dice : MonoBehaviour
     public float K, S, P;
     public string tulos = "0";
     public GameObject pool, box;
+    public Sprite k, s, p;
+    public bool tavoite_flag = false;
 
     private void Awake()
     {
@@ -17,7 +19,12 @@ public class Dice : MonoBehaviour
 
     private void Update()
     {
-        transform.GetChild(0).GetComponent<Text>().text = tulos;
+        if (tulos == "Kivi")
+            GetComponent<Image>().sprite = k;
+        else if (tulos == "Sakset")
+            GetComponent<Image>().sprite = s;
+        else if (tulos == "Paperi")
+            GetComponent<Image>().sprite = p;
     }
 
     public void setKSP(int ki, int sa, int pa)
@@ -79,7 +86,7 @@ public class Dice : MonoBehaviour
         
     public void AddOrRemoveFromPool()
     {
-        if (transform.parent.gameObject == box)
+        if (transform.parent.gameObject == box && !tavoite_flag)
         {
             if (pool.transform.childCount > 5)
                 return;
@@ -88,7 +95,7 @@ public class Dice : MonoBehaviour
             newGO.transform.SetParent(pool.transform);
             newGO.transform.localScale = new Vector3(1, 1, 1);
         }
-        else
+        else if (!tavoite_flag)
         {
             Debug.Log("from pool to box");
             Destroy(gameObject);

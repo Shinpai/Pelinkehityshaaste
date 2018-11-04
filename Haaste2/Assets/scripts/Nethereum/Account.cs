@@ -42,25 +42,21 @@ public class Account : MonoBehaviour
         StartCoroutine(getWallet());
 
         // get assets from wallet
-        //Debug.Log("Getting assets...");
-        //StartCoroutine(getAssets((haettu) =>{
-        //    Debug.Log("Assetit : " + haettu);
-        //}));
+        Debug.Log("Getting assets...");
+        StartCoroutine(getAssets((callback) =>{
+            Debug.Log("Assetit : " + callback);
+        }));
     }
 
     private bool walletFound = false;
     private IEnumerator getWallet()
     {
-        // read json and get abi and bytecode
-        string jsonString = System.IO.File.ReadAllText("Assets/JSON/WalletDB.json");
-        var parsed = Newtonsoft.Json.Linq.JObject.Parse(jsonString);
-        string ABIstring = parsed.GetValue("abi").ToString();
-        string BCstring = parsed.GetValue("bytecode").ToString();
+        string[] molemmat = parseJSON("WalletDB.json");
 
         // new request
         var req = new EthCallUnityRequest(_url);
         // new contract from contract address
-        var contract = new Contract(null, ABIstring, accountAddress);         
+        var contract = new Contract(null, molemmat[0], accountAddress);         
         Function func = contract.GetFunction("getWallet");
 
         // parameters for sendrequest
@@ -81,19 +77,15 @@ public class Account : MonoBehaviour
         }
     }
 
-    public IEnumerator getAssets(Action<string> haettu)
+    public IEnumerator getAssets(Action<string> callback)
     {
         yield return new WaitForSeconds(5);
         // read json and get abi and bytecode
-        string jsonString2 = System.IO.File.ReadAllText("Assets/JSON/GameWallet.json");
-        var parsed2 = Newtonsoft.Json.Linq.JObject.Parse(jsonString2);
-        string ABIstring2 = parsed2.GetValue("abi").ToString();
-        string BCstring2 = parsed2.GetValue("bytecode").ToString();
-
+        string[] molemmat = parseJSON("Marketplace.json");
         // new request
         var req = new EthCallUnityRequest(_url);
         // new contract and wanted function from contract address
-        var contract = new Contract(null, ABIstring2, accountAddress);
+        var contract = new Contract(null, molemmat[0], accountAddress);
         var func = contract.GetFunction("getAssets");
 
         // parameters for sendrequest
@@ -104,7 +96,7 @@ public class Account : MonoBehaviour
         if (req.Exception == null)
         {
             var result = req.Result;
-            haettu(result);
+            callback(result);
         }
         else
         {
@@ -142,5 +134,15 @@ public class Account : MonoBehaviour
             // If we catch some error when getting the public address, we just display the exception in the console
             Debug.Log("Error importing account from PrivateKey: " + e);
         }
+    }
+
+    private string[] parseJSON(string jsonfile)
+    {
+        string jsonString = System.IO.File.ReadAllText("Assets/JSON/" + jsonfile);
+        var parsed = Newtonsoft.Json.Linq.JObject.Parse(jsonString);
+        string ABIstring = parsed.GetValue("abi").ToString();
+        string BCstring = parsed.GetValue("bytecode").ToString();
+        var molemmat = new string[] { ABIstring, BCstring };
+        return molemmat;
     }
 }
