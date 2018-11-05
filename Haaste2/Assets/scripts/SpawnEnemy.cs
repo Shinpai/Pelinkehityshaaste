@@ -164,6 +164,7 @@ public class SpawnEnemy : MonoBehaviour {
         if (checker == 1)
         {
             // if win            
+
             yield return new WaitForSeconds(1);
             Debug.Log("#Combat end");
             poGO.GetComponent<CharacterScript>().HP = poGO.GetComponent<CharacterScript>().max_HP;

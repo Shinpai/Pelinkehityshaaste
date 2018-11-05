@@ -32,49 +32,67 @@ public class Account : MonoBehaviour
         importAccountFromPrivateKey();  
         Debug.Log("Account import OK");
 
-        // check balance of imported account
-        StartCoroutine(getAccountBalance(accountAddress, (balance) => {
-            Debug.Log("Account balance: " + balance);
-        }));
+        // hae priva account hash
+        StartCoroutine(getAccount());
+
+        //// check balance of imported account
+        //StartCoroutine(getAccountBalance(accountAddress, (balance) => {
+        //    Debug.Log("Account balance: " + balance);
+        //}));
 
         // get wallet
         Debug.Log("Getting wallet...");
         StartCoroutine(getWallet());
 
-        //// get assets from wallet
-        //Debug.Log("Getting assets...");
-        //StartCoroutine(getAssets((callback) =>{
-        //    Debug.Log("Assetit : " + callback);
-        //}));
+        // get assets from wallet
+        Debug.Log("Getting assets...");
+        StartCoroutine(getAssets((callback) =>
+        {
+            Debug.Log("Assetit : " + callback);
+        }));
+
+        // assetin tiedot
+        StartCoroutine(getAssetInfo());
+    }
+
+
+    private string account_hash;
+    private IEnumerator getAccount()
+    {
+        var req = new EthAccountsUnityRequest(_url);
+        yield return req.SendRequest();
+        if (req.Exception == null)
+        {
+            Debug.Log("Account 0: " + req.Result[0]);
+            account_hash = req.Result[0];
+        }
+        else
+        {
+            throw new InvalidOperationException("Get account request failed");
+        }
     }
 
     private bool walletFound = false;
+    private string wallet_hash;
     private IEnumerator getWallet()
     {
+        yield return new WaitForSeconds(2);
         string[] molemmat = parseJSON("WalletDB.json");
 
         // new request
-        var req = new EthCallUnityRequest(_url);
+        var req = new EthSendTransactionUnityRequest(_url);
+
         // new contract from contract address
-        var contract = new Contract(null, molemmat[0], accountAddress);         
+        var contract = new Contract(null, molemmat[0], account_hash);
         Function func = contract.GetFunction("getWallet");
+        TransactionInput ti = func.CreateTransactionInput(account_hash);
 
-        // parameters for sendrequest
-        var callinput = func.CreateCallInput(accountAddress);
-        var blockparam = BlockParameter.CreateLatest();
-
-        // returns 0x -> not enough gas?
-
-        yield return req.SendRequest(callinput, blockparam);
+        yield return req.SendRequest(ti);
         if (req.Exception == null)
         {
             Debug.Log("Wallet found: " + req.Result);
+            wallet_hash = req.Result;
             walletFound = true;
-            // get assets from wallet
-            Debug.Log("Getting assets...");
-            StartCoroutine(getAssets((callback) => {
-                Debug.Log("Assetit : " + callback);
-            }));
         }
         else
         {
@@ -82,24 +100,24 @@ public class Account : MonoBehaviour
         }
     }
 
+    private string asset_hash;
     public IEnumerator getAssets(Action<string> callback)
     {
+        yield return new WaitForSeconds(4);
         // read json and get abi and bytecode
-        string[] molemmat = parseJSON("GameWallet.json");
+        string[] molemmat = parseJSON("Marketplace.json");
         // new request
-        var req = new EthCallUnityRequest(_url);
+        var req = new EthSendTransactionUnityRequest(_url);
         // new contract and wanted function from contract address
-        var contract = new Contract(null, molemmat[0], accountAddress);
+        var contract = new Contract(null, molemmat[0], account_hash);
         var func = contract.GetFunction("getAssets");
+        TransactionInput ti = func.CreateTransactionInput(account_hash);
 
-        // parameters for sendrequest
-        var callinput = func.CreateCallInput();
-        var blockparam = BlockParameter.CreateLatest();
-
-        yield return req.SendRequest(callinput, blockparam);
+        yield return req.SendRequest(ti);
         if (req.Exception == null)
         {
             var result = req.Result;
+            asset_hash = result;
             callback(result);
         }
         else
@@ -107,7 +125,35 @@ public class Account : MonoBehaviour
             throw new InvalidOperationException("Get assets request failed");
         }
     }
-    
+
+
+    private IEnumerator getAssetInfo()
+    {
+        yield return new WaitForSeconds(6);
+        string[] molemmat = parseJSON("Asset.json");
+        // new request
+        var req = new EthSendTransactionUnityRequest(_url);
+
+        // new contract from contract address
+        var contract = new Contract(null, molemmat[0], wallet_hash);
+        Function func = contract.GetFunction("getName");
+        TransactionInput ti = func.CreateTransactionInput(asset_hash);
+
+        yield return req.SendRequest(ti);
+        if (req.Exception == null)
+        {
+            Debug.Log("Info found: " + req.Result);
+            walletFound = true;
+        }
+        else
+        {
+            throw new InvalidOperationException("Get info request failed");
+        }
+    }
+
+
+    // turhat paskat
+
     public IEnumerator getAccountBalance(string address, System.Action<decimal> callback)
     {
         var getBalanceRequest = new EthGetBalanceUnityRequest(_url);
