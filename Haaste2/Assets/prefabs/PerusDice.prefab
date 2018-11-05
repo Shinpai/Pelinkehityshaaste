@@ -126,9 +126,10 @@ MonoBehaviour:
   tulos: 
   pool: {fileID: 0}
   box: {fileID: 0}
-  k: {fileID: 21300000, guid: de1a1c89ef522d046be77301b7eb03ee, type: 3}
-  s: {fileID: 21300000, guid: 8c28b0fd1dd5ac048b9613425450db7e, type: 3}
-  p: {fileID: 21300000, guid: 0b2f0b8fa504d2b409d53514d539f96e, type: 3}
+  k: {fileID: 21300000, guid: c3429a0c2847ffb4fb5ea90602770569, type: 3}
+  s: {fileID: 21300000, guid: ca897d30c60ab814d959412cee0eb1f4, type: 3}
+  p: {fileID: 21300000, guid: fe585f43a78bb24409f02ca8dba0fd2e, type: 3}
+  tavoite_flag: 0
 --- !u!222 &222952914024439792
 CanvasRenderer:
   m_ObjectHideFlags: 1

@@ -31,6 +31,7 @@ public class SpawnEnemy : MonoBehaviour {
         
     }
 
+    private int enemy_counter;
     private void Update()
     {
         // update combatui
@@ -41,15 +42,19 @@ public class SpawnEnemy : MonoBehaviour {
             ehpgo.text = string.Format("{0}", enemyGO.GetComponent<EnemyScript>().HP);
             eslider.value = enemyGO.GetComponent<EnemyScript>().HP;            
         }
+        else if(enemyGO == null)
+        {
+            CreateAndSpawn(enemy_counter);
+        }
     }
 
     /// <summary>
     /// Instantioi otukset
     /// </summary>
-    public void CreateAndSpawn()
+    public void CreateAndSpawn(int counter)
     {
         string[] enemies = new string[] { "possum", "eagle" };
-        int enemytype = UnityEngine.Random.Range(1, 3);
+        int enemytype = UnityEngine.Random.Range(1, enemies.Length + 1);
         Debug.Log(string.Format("Enemy of type {0} spawned", enemytype));
 
         if (enemytype == 1)
@@ -64,7 +69,16 @@ public class SpawnEnemy : MonoBehaviour {
             enemyGO.transform.SetParent(enemySpawner.transform);
             enemyGO.transform.position = new Vector3(enemySpawner.transform.position.x, 5, enemySpawner.transform.position.z);
         }
+
+        int[] skaalaus = new int[] { 1,1,2,2,2,3,3,3,3,3,4,4,4,5,5,6 };
+        string[] KPS = new string[] { "Kivi", "Sakset", "Paperi" };
+        for (int i = 0; i < skaalaus[enemy_counter]; i++)
+        {
+            var next_ind = UnityEngine.Random.Range(0, 3);
+            enemyGO.GetComponent<EnemyScript>().tavoite.Add(KPS[next_ind]);
+        }
         eslider.maxValue = enemyGO.GetComponent<EnemyScript>().HP;
+        enemy_counter++;
     }
 
     /// <summary>
@@ -85,21 +99,20 @@ public class SpawnEnemy : MonoBehaviour {
     /// <param name="HP"></param>
     /// <param name="tavoite"></param>
     /// <param name="tavoitemaara"></param>
-    internal void StartCombat(string en_name, int HP, string tavoite, int tavoitemaara)
+    internal void StartCombat(string en_name, int HP, List<string> tavoite)
     {
-        Debug.Log(string.Format("#Combat start with : {0}, {1}, {2}, {3}", en_name, HP, tavoite, tavoitemaara));
+        Debug.Log(string.Format("#Combat start with : {0}, {1}, {2}", en_name, HP, tavoite));
         CombatUI.transform.Translate(0, 0, 10);
         //GameObject enemy = GameObject.Find(en_name);
         GameObject enemy = enemyGO;
         // tavoite setup
-        var tav = enemy.GetComponent<EnemyScript>().getTavoite();
         var pool = CombatUI.transform.GetChild(0).GetChild(1).GetChild(0).gameObject;
         // poistetaan vanhat ensin
         foreach (Transform child in pool.transform)
         {
             Destroy(child.gameObject);
         }
-        foreach (string item in tav)
+        foreach (string item in tavoite)
         {
             Debug.Log(item);
             var go = Instantiate<GameObject>(dicePrefab);
@@ -137,29 +150,32 @@ public class SpawnEnemy : MonoBehaviour {
         if (tulos < target.childCount)
         {
             Debug.Log("player damaged");
-            poGO.GetComponent<CharacterScript>().HP -= 2;
+            var dmg = enemyGO.GetComponent<EnemyScript>().damage;
+            poGO.GetComponent<CharacterScript>().HP -= dmg;
         }
         else if(tulos >= target.childCount)
         {
             Debug.Log("enemy damaged");
-            enemyGO.GetComponent<EnemyScript>().HP -= 2;
+            var dmg = poGO.GetComponent<CharacterScript>().damage;
+            enemyGO.GetComponent<EnemyScript>().HP -= dmg;
         }
         
         var checker = CheckPlayerAndOpponent();
         if (checker == 1)
         {
             // if win            
+            yield return new WaitForSeconds(1);
             Debug.Log("#Combat end");
             poGO.GetComponent<CharacterScript>().HP = poGO.GetComponent<CharacterScript>().max_HP;
             Destroy(enemyGO);
             CombatUI.transform.Translate(0, 0, -10);
-            yield return new WaitForSeconds(1);
+            
         }
         else if (checker == 0)
         {
             // lose            
-            SceneManager.LoadScene(0);
             yield return new WaitForSeconds(1);
+            SceneManager.LoadScene(0);
         }        
         
         yield return new WaitForSeconds(1);
@@ -179,9 +195,9 @@ public class SpawnEnemy : MonoBehaviour {
         var pla = poGO;
         var enemy = enemyGO;
         Debug.Log(string.Format("checked : {0}", enemy.name));
-        if (pla.GetComponent<CharacterScript>().HP < 0)
+        if (pla.GetComponent<CharacterScript>().HP <= 0)
             return 0;
-        else if (enemy.GetComponent<EnemyScript>().HP < 0)
+        else if (enemy.GetComponent<EnemyScript>().HP <= 0)
             return 1;
         return -1;
     }

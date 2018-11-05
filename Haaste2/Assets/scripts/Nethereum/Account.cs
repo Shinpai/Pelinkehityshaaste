@@ -41,11 +41,11 @@ public class Account : MonoBehaviour
         Debug.Log("Getting wallet...");
         StartCoroutine(getWallet());
 
-        // get assets from wallet
-        Debug.Log("Getting assets...");
-        StartCoroutine(getAssets((callback) =>{
-            Debug.Log("Assetit : " + callback);
-        }));
+        //// get assets from wallet
+        //Debug.Log("Getting assets...");
+        //StartCoroutine(getAssets((callback) =>{
+        //    Debug.Log("Assetit : " + callback);
+        //}));
     }
 
     private bool walletFound = false;
@@ -70,6 +70,11 @@ public class Account : MonoBehaviour
         {
             Debug.Log("Wallet found: " + req.Result);
             walletFound = true;
+            // get assets from wallet
+            Debug.Log("Getting assets...");
+            StartCoroutine(getAssets((callback) => {
+                Debug.Log("Assetit : " + callback);
+            }));
         }
         else
         {
@@ -79,9 +84,8 @@ public class Account : MonoBehaviour
 
     public IEnumerator getAssets(Action<string> callback)
     {
-        yield return new WaitForSeconds(5);
         // read json and get abi and bytecode
-        string[] molemmat = parseJSON("Marketplace.json");
+        string[] molemmat = parseJSON("GameWallet.json");
         // new request
         var req = new EthCallUnityRequest(_url);
         // new contract and wanted function from contract address
