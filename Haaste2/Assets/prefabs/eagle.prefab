@@ -102,6 +102,8 @@ MonoBehaviour:
   spawner: {fileID: 0}
   CombatUI: {fileID: 0}
   moveSpeed: 2
+  damage: 0
+  tavoite: []
 --- !u!212 &212475734183955358
 SpriteRenderer:
   m_ObjectHideFlags: 1

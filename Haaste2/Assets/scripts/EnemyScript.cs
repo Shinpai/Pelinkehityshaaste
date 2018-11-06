@@ -7,6 +7,7 @@ public class EnemyScript : MonoBehaviour {
     public GameObject spawner, CombatUI;
 
     private string en_name;
+    private Animator enemyAnimator;
     public int HP { get; set; }
     public float moveSpeed;
     public int damage;
@@ -16,6 +17,7 @@ public class EnemyScript : MonoBehaviour {
     {
         CombatUI = GameObject.Find("CombatUICanvas");
         spawner = GameObject.Find("EnemySpawner");
+        enemyAnimator = GetComponent<Animator>();
         en_name = gameObject.name;
         if (en_name == "possum(Clone)")
         {
@@ -35,6 +37,17 @@ public class EnemyScript : MonoBehaviour {
         {
             transform.Translate(-moveSpeed * Time.deltaTime, 0, 0);
         }
+    }
+
+    public void killThis()
+    {
+        enemyAnimator.SetTrigger("DeathTrigger");
+        Debug.Log("animaatio?");
+    }
+
+    public void Attack()
+    {
+        enemyAnimator.SetTrigger("AttackTrigger");
     }
 
     private void OnTriggerEnter(Collider other)

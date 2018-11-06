@@ -9,8 +9,10 @@ using System;
 public class SpawnEnemy : MonoBehaviour {
 
     public GameObject possumPrefab, eaglePrefab, CombatUI, BoxOfDice, BagOfDice, dicePrefab, poGO;
-    private Text phpgo, ehpgo;
+    private AudioSource[] audioBank;
+    private Text phpgo, ehpgo, pointstext;
     private Slider pslider, eslider;
+    private int points = 0;
     private bool win_flag;
     public string _en_name;
     private GameObject enemySpawner, enemyGO;
@@ -25,10 +27,12 @@ public class SpawnEnemy : MonoBehaviour {
         CombatUI = GameObject.Find("CombatUICanvas");
         phpgo = GameObject.Find("PlayerHPText").GetComponent<Text>();
         ehpgo = GameObject.Find("EnemyHPText").GetComponent<Text>();
+        pointstext = GameObject.Find("PointsText").GetComponent<Text>();
         pslider = GameObject.Find("PlayerSlider").GetComponent<Slider>();
         eslider = GameObject.Find("EnemySlider").GetComponent<Slider>();
+        audioBank = GameObject.Find("AudioBank").GetComponents<AudioSource>();
+
         pslider.maxValue = poGO.GetComponent<CharacterScript>().max_HP;
-        
     }
 
     private int enemy_counter;
@@ -43,9 +47,11 @@ public class SpawnEnemy : MonoBehaviour {
             eslider.value = enemyGO.GetComponent<EnemyScript>().HP;            
         }
         else if(enemyGO == null)
-        {
+        {   
             CreateAndSpawn(enemy_counter);
         }
+
+        pointstext.text = points.ToString();
     }
 
     /// <summary>
@@ -114,7 +120,6 @@ public class SpawnEnemy : MonoBehaviour {
         }
         foreach (string item in tavoite)
         {
-            Debug.Log(item);
             var go = Instantiate<GameObject>(dicePrefab);
             go.transform.SetParent(pool.transform);
             go.transform.localScale = new Vector3(1, 1, 1);
@@ -145,17 +150,21 @@ public class SpawnEnemy : MonoBehaviour {
                 tulos += 1;
         }
         Debug.Log(tulos + "/" + target.childCount);
-        yield return new WaitForSeconds(1);
 
         if (tulos < target.childCount)
         {
             Debug.Log("player damaged");
+            audioBank[2].Play();
+            enemyGO.GetComponent<EnemyScript>().Attack();
             var dmg = enemyGO.GetComponent<EnemyScript>().damage;
             poGO.GetComponent<CharacterScript>().HP -= dmg;
         }
         else if(tulos >= target.childCount)
         {
             Debug.Log("enemy damaged");
+            audioBank[2].Play();
+            poGO.GetComponent<CharacterScript>().Attack();
+            yield return new WaitForSeconds(1);
             var dmg = poGO.GetComponent<CharacterScript>().damage;
             enemyGO.GetComponent<EnemyScript>().HP -= dmg;
         }
@@ -163,18 +172,20 @@ public class SpawnEnemy : MonoBehaviour {
         var checker = CheckPlayerAndOpponent();
         if (checker == 1)
         {
-            // if win            
-
-            yield return new WaitForSeconds(1);
-            Debug.Log("#Combat end");
-            poGO.GetComponent<CharacterScript>().HP = poGO.GetComponent<CharacterScript>().max_HP;
-            Destroy(enemyGO);
+            enemyGO.GetComponent<EnemyScript>().killThis();
+            points += enemy_counter * 100;
+            // if win
+            audioBank[3].Play();            
             CombatUI.transform.Translate(0, 0, -10);
-            
+            yield return new WaitForSeconds(1);
+            Destroy(enemyGO);
+            Debug.Log("#Combat end");
+            poGO.GetComponent<CharacterScript>().HP = poGO.GetComponent<CharacterScript>().max_HP;  
         }
         else if (checker == 0)
         {
-            // lose            
+            // lose
+            audioBank[4].Play();
             yield return new WaitForSeconds(1);
             SceneManager.LoadScene(0);
         }        
